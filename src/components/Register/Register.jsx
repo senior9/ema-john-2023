@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authContext } from '../AuthProvider/AuthProvider';
+import './Register.css'
 
 const Register = () => {
 const {createUser} =useContext(authContext);
+const [error,setError] =useState('')
 console.log(createUser);
 
 
@@ -14,16 +16,23 @@ const handleSignup = (event) => {
         const password = form.password.value;
         const confirmPassword =form.confirmPassword.value;
         console.log(email,password,"hello",confirmPassword);
-        // if (password !== confirmPassword) {
-        //     return 
-        // }
+        setError('')
+        if (password != confirmPassword) {
+            setError('Your password is did not match')
+            return;
+        }
+        else if(password.length > 6){
+            setError('Your password must be at least 6 characters');
+            return;
+        }
         createUser(email,password)
         .then((result)=>{
             const newUser = result.user;
             console.log(newUser);
+            form.reset();
         })
         .catch((error)=>{
-            console.log(error.message);
+            setError(error.message);
         })
 }
 
@@ -34,7 +43,7 @@ const handleSignup = (event) => {
             <h2>Login coming sooon</h2>
                 <div className='login-card'>
                         <div className='login-text'>
-                        <span>Login</span>
+                        <span>Create Account</span>
                         </div>
                         <form onSubmit={handleSignup} className=' form-control'>
                         <div>
@@ -48,7 +57,9 @@ const handleSignup = (event) => {
                         <div>
                             <p><span>Confirm Password</span></p>
                             <input type="password" name="confirmPassword" placeholder='' id=""  required/>
+                           
                         </div>
+                        <p className='eroor-message'> {error}</p>
                         <button className='login-btn'>Login </button>
                         
                         </form>

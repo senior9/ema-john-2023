@@ -1,5 +1,5 @@
-import React, { createContext, useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, applyActionCode, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import React, { createContext, useEffect, useState } from 'react';
+import { getAuth, createUserWithEmailAndPassword, applyActionCode, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import app from '../../firebase.init';
 
 // create context and export
@@ -7,24 +7,39 @@ import app from '../../firebase.init';
 const AuthProvider = ({children}) => {
     const auth = getAuth(app);
     const [user,setUser] = useState(null)
+    // Loading 
+    const [loading,setLoading] =useState(true);
 // user XCreate Function 
 const createUser = (email,password)=>{
+    setLoading(true)
     return createUserWithEmailAndPassword(auth, email, password);
 } 
 // user Signin 
 const login = (email,password)=>{
+    setLoading(true)
     return signInWithEmailAndPassword(auth, email, password);
 }  
 // user logout 
 const logOut = ()=>{
     return signOut(auth);
 }
+// Observer 
+useEffect(()=>{
+    const unSubscibe= onAuthStateChanged(auth, currenUser =>{
+        setUser(currenUser);
+        setLoading(false);
+    })
+    return ()=>{
+        return unSubscibe;
+    }
+},[])
     // context Value 
     const authInfo = {
         user,
         createUser,
         login,
         logOut,
+        loading,
 
     }
 
